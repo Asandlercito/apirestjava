@@ -12,13 +12,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import com.apirest.apirest.repositories.NotaRepository;
 import com.apirest.apirest.repositories.UserRepository;
 import com.apirest.apirest.services.NotaInterface;
-
+import com.apirest.apirest.utils.JWTUtil;
 import com.apirest.apirest.models.Nota;
 import com.apirest.apirest.models.User;
 
@@ -36,6 +37,8 @@ public class NotaController {
     @Autowired
     private NotaRepository notaRepository;
     
+    @Autowired
+    private JWTUtil jwtUtil;
     
     @Autowired
     private UserRepository userRepo;
@@ -52,7 +55,7 @@ public class NotaController {
 		consumes  = MediaType.APPLICATION_JSON_VALUE,
 		produces = MediaType.APPLICATION_JSON_VALUE
 	)	
-	public ResponseEntity<?> create(@RequestBody Map<String, Object> data ) {
+	public ResponseEntity<?> create(@RequestHeader(value="Authorization") String token,@RequestBody Map<String, Object> data ) {
 		
 		/* POR TEMAS DE PRACTICIDAD NO CREE UN METODO EN EL SERVICIO PARA ESTO , EN EL ULTIMO METODO IMPLEMENTO UN SERVICIO*/
 		
@@ -60,6 +63,16 @@ public class NotaController {
 		HttpHeaders    headers    = new HttpHeaders();
 		
 		Map<String, Object> payload = new HashMap<>();
+		
+		if (!validarToken(token)) {
+			
+			payload.put("success",false);
+			payload.put("msg","toke no validado");
+			
+			response = new ResponseEntity<Map<String, Object>>(payload, headers, HttpStatus.OK);
+			
+			return response;
+		}
 		
 		Long userId = Long.parseLong(data.get("user_id").toString());
 		
@@ -143,9 +156,9 @@ public class NotaController {
 		consumes  = MediaType.APPLICATION_JSON_VALUE,
 		produces = MediaType.APPLICATION_JSON_VALUE
 	)	
-	public ResponseEntity<?> delete(@PathVariable("id") String id) {
+	public ResponseEntity<?> delete(@RequestHeader(value="Authorization") String token,@PathVariable("id") String id) {
 		
-		Map<String, Object> payload = new HashMap<>();	
+		Map<String, Object> payload = new HashMap<>();
 		
 		ResponseEntity response = null;		
 		HttpHeaders    headers  = new HttpHeaders();
@@ -247,5 +260,11 @@ public class NotaController {
 											
 		return response;
 	}
+	
+    @SuppressWarnings("unused")
+	private boolean validarToken(String token) {
+        String usuarioId = jwtUtil.getKey(token);
+        return usuarioId != null;
+    }
 	
 }
