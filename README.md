@@ -1,9 +1,6 @@
-# apirestjava
-api rest para java 
+ Auth super basica y a un solo endPoints "CREATE NOTAS" .. las disculpas del caso , no me alcanzo tiempo.
 
-Solo hice un auth super basica y a un solo endPoints ...create notas .. las disculpas del caso , no me alcanzo tiempo,
 
-Los COLECCITION de endPoints se la mande al correo a la reclutadora. 
 
 
 Peace out !
