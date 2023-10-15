@@ -15,9 +15,10 @@ import javax.persistence.Table;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
 
@@ -32,6 +33,7 @@ public class Nota implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
 
 	@Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -52,11 +54,16 @@ public class Nota implements Serializable{
     @Column(name = "updated")
     private String updatedAt;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnore
     @JoinColumn(name="user_id", nullable=false)
     private User user;
-
-    public Nota() {}
+    
+	@Override
+	public String toString() {
+		return "Nota [id=" + id + ", mensaje=" + mensaje + ", codigo=" + codigo + ", createdAt=" + createdAt
+				+ ", updatedAt=" + updatedAt + ", user=" + user.getId() + "]";
+	}
 
 	public String getMensaje() {
 		return mensaje;

@@ -7,8 +7,10 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.http.HttpStatus;
 import com.apirest.apirest.repositories.NotaRepository;
 import com.apirest.apirest.models.Nota;
+
 
 @Service
 public class NotaService implements NotaInterface {
@@ -27,28 +29,41 @@ public class NotaService implements NotaInterface {
 			
 			Iterable<Nota> notas = notaRepository.findAll();
 			
-			for (Nota notaa : notas) {
+			if (notas.iterator().hasNext()) {
 				
-				Map<String, Object> map = new HashMap<>();
+				for (Nota notaa : notas) {
+					
+					Map<String, Object> map = new HashMap<>();
+					
+					String user = notaa.getUser().getApellido().toString()+" "+notaa.getUser().getNombre().toString();
+					String userId = notaa.getUser().getId().toString();
+					
+					map.put("id",notaa.getId());
+					map.put("mensaje",notaa.getMensaje());
+					map.put("codigo",notaa.getCodigo());
+					map.put("full_name",user);
+					map.put("usuario_id",userId);
 				
-				String user = notaa.getUser().getApellido().toString()+" "+notaa.getUser().getNombre().toString();
-				String userId = notaa.getUser().getId().toString();
-												
-				map.put("mensaje",notaa.getMensaje());
-				map.put("codigo",notaa.getCodigo());
-				map.put("full_name",user);
-				map.put("usuario_id",userId);
-			
-				lista.add(map);
+					lista.add(map);
+					
+				}
 				
+				response.put("success","te la tragas".toString());
+				response.put("data",lista);
+				
+				
+			} else {
+				
+				response.put("success",HttpStatus.NOT_FOUND);
+				response.put("data",lista);
 			}
-																			
-			response.put("success",true);
-			response.put("data",lista);
+			
+																		
+			
 		
 		} catch (Exception e) {
 			// TODO: handle exception
-			response.put("success",false);
+			response.put("success",HttpStatus.BAD_REQUEST);
 			response.put("msg",e.getMessage().toString());
 		}
 							
@@ -94,6 +109,20 @@ public class NotaService implements NotaInterface {
 		}
 							
 		return response;
+	}
+	
+	@Override
+	public Map<String, Object> getNotaById(Long notaId) {
+		// TODO Auto-generated method stub
+		Map<String,Object> response =  new HashMap<>();
+		
+		response.put("sdfsf", "dfgdsg");
+		return response;
+	}
+
+	public Nota giveMe(Long notaId) {
+		// More Business Logic
+        return notaRepository.findById(notaId).orElse(null);
 	}
 
 }

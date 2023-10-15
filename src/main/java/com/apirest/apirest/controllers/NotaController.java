@@ -3,25 +3,22 @@ package com.apirest.apirest.controllers;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.apirest.apirest.repositories.NotaRepository;
 import com.apirest.apirest.repositories.UserRepository;
+import com.apirest.apirest.response.ResponseHandler;
 import com.apirest.apirest.services.NotaInterface;
 import com.apirest.apirest.utils.JWTUtil;
 import com.apirest.apirest.models.Nota;
 import com.apirest.apirest.models.User;
+import com.apirest.apirest.response.ResponseHandler;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -49,9 +46,24 @@ public class NotaController {
     
     
 	@SuppressWarnings("rawtypes")	
-	@RequestMapping(
+	@GetMapping(
 		value = "/notas",
-		method = RequestMethod.POST,
+		consumes  = MediaType.APPLICATION_JSON_VALUE,
+		produces = MediaType.APPLICATION_JSON_VALUE
+	)	
+	public ResponseEntity<?> list() {
+		
+		ResponseEntity response = null;		
+		HttpHeaders    headers  = new HttpHeaders();
+							
+		response = new ResponseEntity<Map<String, Object>>(notaInterfaceService.listNotas(), headers, HttpStatus.OK);
+											
+		return response;
+	}
+    
+	@SuppressWarnings("rawtypes")	
+	@PostMapping(
+		value = "/notas",
 		consumes  = MediaType.APPLICATION_JSON_VALUE,
 		produces = MediaType.APPLICATION_JSON_VALUE
 	)	
@@ -106,9 +118,8 @@ public class NotaController {
 	}
 	
 	@SuppressWarnings("rawtypes")	
-	@RequestMapping(
+	@PatchMapping(
 		value = "/notas",
-		method = RequestMethod.PATCH,
 		consumes  = MediaType.APPLICATION_JSON_VALUE,
 		produces = MediaType.APPLICATION_JSON_VALUE
 	)	
@@ -150,9 +161,8 @@ public class NotaController {
 	}
 	
 	@SuppressWarnings("rawtypes")	
-	@RequestMapping(
+	@DeleteMapping(
 		value = "/notas/{id}",
-		method = RequestMethod.DELETE,
 		consumes  = MediaType.APPLICATION_JSON_VALUE,
 		produces = MediaType.APPLICATION_JSON_VALUE
 	)	
@@ -188,66 +198,26 @@ public class NotaController {
 		return response;
 	}
 	
-	@SuppressWarnings("rawtypes")	
-	@RequestMapping(
+	@GetMapping(
 		value = "/notas/{id}",
-		method = RequestMethod.GET,
 		consumes  = MediaType.APPLICATION_JSON_VALUE,
 		produces = MediaType.APPLICATION_JSON_VALUE
 	)	
 	public ResponseEntity<?> read(@PathVariable("id") String id) {
-		
+				
+	    Nota nota = notaInterfaceService.giveMe(Long.parseLong(id));
 
-		Map<String, Object> payload = new HashMap<>();	
-		
-		ResponseEntity response = null;		
-		HttpHeaders    headers  = new HttpHeaders();
-		Nota nota = null;
-		
-		Long notaId = Long.parseLong(id.toString());
-		
-		nota = notaRepository.findById(notaId).orElse(null);
-							
-		if(nota == null) {
-			
-			payload.put("success",false);
-			payload.put("msg","no se pudo encontra la nota");
-			
-			response = new ResponseEntity<Map<String, Object>>(payload, headers, HttpStatus.BAD_REQUEST);
-			
-			return response;
-		}
-									
-		payload.put("success",true);
-		payload.put("data",nota);
-									
-		response = new ResponseEntity<Map<String, Object>>(payload, headers, HttpStatus.OK);
+	    if (nota != null) {	    	
+	        return ResponseHandler.responseBuilder("found", HttpStatus.OK, nota);	        
+	    } else {
+	    	return ResponseHandler.responseBuilder("not found", HttpStatus.NOT_FOUND, nota);
+	    }
 											
-		return response;
 	}
 	
 	@SuppressWarnings("rawtypes")	
-	@RequestMapping(
-		value = "/notas",
-		method = RequestMethod.GET,
-		consumes  = MediaType.APPLICATION_JSON_VALUE,
-		produces = MediaType.APPLICATION_JSON_VALUE
-	)	
-	public ResponseEntity<?> list() {
-		
-		ResponseEntity response = null;		
-		HttpHeaders    headers  = new HttpHeaders();
-							
-		response = new ResponseEntity<Map<String, Object>>(notaInterfaceService.listNotas(), headers, HttpStatus.OK);
-											
-		return response;
-	}
-	
-	
-	@SuppressWarnings("rawtypes")	
-	@RequestMapping(
+	@GetMapping(
 		value = "/notas/user/{user_id}",
-		method = RequestMethod.GET,
 		consumes  = MediaType.APPLICATION_JSON_VALUE,
 		produces = MediaType.APPLICATION_JSON_VALUE
 	)	

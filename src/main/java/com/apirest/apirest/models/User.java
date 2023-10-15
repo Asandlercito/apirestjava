@@ -1,9 +1,7 @@
 package com.apirest.apirest.models;
 
 import java.util.Set;
-
 import javax.persistence.*;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,6 +37,7 @@ public class User  {
     @Column(name = "password")
     private String password;
     
+
     @OneToMany(mappedBy="user")
     private Set<Nota> notas;
 	
